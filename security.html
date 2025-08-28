@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security - ScanWeb Security Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafafa;
+            --bg-secondary: white;
+            --bg-tertiary: #f9f9f9;
+            --text-primary: #171717;
+            --text-secondary: #737373;
+            --text-muted: #525252;
+            --border-primary: #e5e5e5;
+            --border-secondary: #d4d4d8;
+            --accent: #171717;
+            --accent-hover: #262626;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #171717;
+            --bg-tertiary: #262626;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border-primary: #262626;
+            --border-secondary: #404040;
+            --accent: #fafafa;
+            --accent-hover: #e5e5e5;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            padding: 80px 20px 20px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-theme-toggle {
+            background: none;
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-theme-toggle:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        .nav-theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-primary);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .mobile-theme-toggle {
+            display: none;
+            justify-content: center;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-primary);
+            margin-top: 8px;
+        }
+
+        .mobile-theme-toggle button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .mobile-theme-toggle button:hover {
+            background: var(--bg-primary);
+        }
+
+        .mobile-theme-toggle svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                border-bottom: 1px solid var(--border-primary);
+                flex-direction: column;
+                padding: 20px;
+                gap: 16px;
+                box-shadow: var(--shadow);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links.active .mobile-theme-toggle {
+                display: flex;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .nav-theme-toggle {
+                display: none;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .security-section {
+            margin-bottom: 80px;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .security-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .security-icon {
+            font-size: 2.5rem;
+        }
+
+        .security-section p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .security-section h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin: 24px 0 12px 0;
+        }
+
+        .security-section ul {
+            margin: 16px 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+        }
+
+        .security-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .contact-info {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .contact-info a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .footer-section a:hover {
+            color: var(--text-primary);
+            transition: color 0.2s ease;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-bottom {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-primary);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .security-section {
+                padding: 24px;
+            }
+            
+            .security-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">ScanWeb</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="resources.html">Resources</a></li>
+                <li><a href="security.html" class="active">Security</a></li>
+                <li class="mobile-theme-toggle">
+                    <button id="mobileThemeToggle" aria-label="Toggle theme">
+                        <svg class="sun-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                        <span>Theme</span>
+                    </button>
+                </li>
+            </ul>
+            <div class="nav-right">
+                <button class="nav-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Security</h1>
+            <p>Our commitment to security, privacy, and responsible practices in providing comprehensive web security scanning services.</p>
+        </div>
+
+        <div class="security-section" id="privacy-policy">
+            <h2><span class="security-icon">🔒</span>Privacy Policy</h2>
+            <p>ScanWeb is committed to protecting your privacy and ensuring the security of any data processed during security scans.</p>
+            
+            <h3>Data Collection</h3>
+            <ul>
+                <li>We collect only the URL you provide for scanning purposes</li>
+                <li>Scan results are temporarily stored for analysis and reporting</li>
+                <li>No personal information is required to use our basic scanning service</li>
+                <li>IP addresses are logged for security and rate limiting purposes</li>
+            </ul>
+            
+            <h3>Data Usage</h3>
+            <ul>
+                <li>Scan data is used solely for security analysis and reporting</li>
+                <li>Aggregated, anonymized data may be used to improve our scanning algorithms</li>
+                <li>We do not sell, share, or distribute your scan data to third parties</li>
+                <li>Scan results are automatically deleted after 30 days</li>
+            </ul>
+            
+            <h3>Data Protection</h3>
+            <ul>
+                <li>All data transmission is encrypted using industry-standard TLS</li>
+                <li>Scan results are stored in secure, encrypted databases</li>
+                <li>Access to scan data is restricted to authorized personnel only</li>
+                <li>Regular security audits ensure data protection compliance</li>
+            </ul>
+        </div>
+
+        <div class="security-section" id="terms-of-service">
+            <h2><span class="security-icon">📋</span>Terms of Service</h2>
+            <p>By using ScanWeb, you agree to the following terms and conditions governing the use of our security scanning service.</p>
+            
+            <h3>Acceptable Use</h3>
+            <ul>
+                <li>You may only scan websites you own or have explicit permission to test</li>
+                <li>Scanning third-party websites without permission is prohibited</li>
+                <li>Do not use ScanWeb for malicious purposes or illegal activities</li>
+                <li>Rate limiting applies to prevent abuse of our scanning infrastructure</li>
+            </ul>
+            
+            <h3>Service Availability</h3>
+            <ul>
+                <li>ScanWeb is provided on an "as-is" basis without warranties</li>
+                <li>We strive for high availability but cannot guarantee 100% uptime</li>
+                <li>Maintenance windows may temporarily interrupt service</li>
+                <li>We reserve the right to modify or discontinue features with notice</li>
+            </ul>
+            
+            <h3>Limitation of Liability</h3>
+            <ul>
+                <li>ScanWeb results are for informational purposes only</li>
+                <li>We are not liable for any damages resulting from scan results or recommendations</li>
+                <li>Users are responsible for implementing appropriate security measures</li>
+                <li>Professional security consultation is recommended for critical systems</li>
+            </ul>
+        </div>
+
+        <div class="security-section" id="security-policy">
+            <h2><span class="security-icon">🛡️</span>Security Policy</h2>
+            <p>ScanWeb maintains strict security standards to protect our infrastructure and user data while providing reliable security scanning services.</p>
+            
+            <h3>Infrastructure Security</h3>
+            <ul>
+                <li>All systems are regularly updated with security patches</li>
+                <li>Multi-factor authentication required for administrative access</li>
+                <li>Network segmentation isolates scanning infrastructure</li>
+                <li>Continuous monitoring detects and responds to threats</li>
+            </ul>
+            
+            <h3>Scanning Ethics</h3>
+            <ul>
+                <li>Scans are performed respectfully with appropriate rate limiting</li>
+                <li>We do not exploit vulnerabilities discovered during scans</li>
+                <li>Scanning follows responsible disclosure principles</li>
+                <li>User consent is required before scanning any website</li>
+            </ul>
+            
+            <h3>Data Security</h3>
+            <ul>
+                <li>Encryption in transit and at rest for all sensitive data</li>
+                <li>Regular security audits and penetration testing</li>
+                <li>Incident response procedures for security events</li>
+                <li>Compliance with industry security standards and best practices</li>
+            </ul>
+        </div>
+
+        <div class="security-section" id="responsible-disclosure">
+            <h2><span class="security-icon">🔍</span>Responsible Disclosure</h2>
+            <p>We believe in responsible disclosure of security vulnerabilities and encourage security researchers to report issues through proper channels.</p>
+            
+            <h3>Reporting Security Issues</h3>
+            <div class="contact-info">
+                <p><strong>Security Contact:</strong> <a href="mailto:sameermann5335@gmail.com">sameermann5335@gmail.com</a></p>
+                <p>Please include "SECURITY" in the subject line when reporting security vulnerabilities.</p>
+            </div>
+            
+            <h3>Disclosure Process</h3>
+            <ul>
+                <li>Report security issues privately via email before public disclosure</li>
+                <li>Provide detailed information about the vulnerability and potential impact</li>
+                <li>Allow reasonable time for investigation and remediation</li>
+                <li>We will acknowledge receipt within 48 hours and provide updates</li>
+            </ul>
+            
+            <h3>Recognition</h3>
+            <ul>
+                <li>Security researchers who responsibly disclose issues will be credited</li>
+                <li>We maintain a security hall of fame for contributors</li>
+                <li>Coordinated disclosure timelines respect both security and transparency</li>
+                <li>We do not pursue legal action against good-faith security research</li>
+            </ul>
+            
+            <h3>Scope</h3>
+            <ul>
+                <li>ScanWeb web application and API endpoints</li>
+                <li>Supporting infrastructure and services</li>
+                <li>Client-side security issues in our web interface</li>
+                <li>Authentication and authorization mechanisms</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>ScanWeb</h3>
+                <p>Advanced security scanning tool that helps identify vulnerabilities and provides AI-powered recommendations to secure your web applications.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Features</h3>
+                <ul class="footer-links">
+                    <li><a href="features.html#security-headers">Security Headers Analysis</a></li>
+                    <li><a href="features.html#script-detection">Script Tag Detection</a></li>
+                    <li><a href="features.html#sql-injection">SQL Injection Assessment</a></li>
+                    <li><a href="features.html#ai-recommendations">AI-Powered Recommendations</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="resources.html#documentation">Documentation</a></li>
+                    <li><a href="resources.html#api-reference">API Reference</a></li>
+                    <li><a href="resources.html#support">Support</a></li>
+                    <li><a href="resources.html#changelog">Changelog</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Security</h3>
+                <ul class="footer-links">
+                    <li><a href="security.html#privacy-policy">Privacy Policy</a></li>
+                    <li><a href="security.html#terms-of-service">Terms of Service</a></li>
+                    <li><a href="security.html#security-policy">Security Policy</a></li>
+                    <li><a href="security.html#responsible-disclosure">Responsible Disclosure</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ScanWeb. Built for security professionals and developers.</p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navLinks = document.getElementById('navLinks');
+        const html = document.documentElement;
+
+        function toggleTheme() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+        }
+
+        function updateThemeIcons(theme) {
+            const allSunIcons = document.querySelectorAll('.sun-icon');
+            const allMoonIcons = document.querySelectorAll('.moon-icon');
+            
+            if (theme === 'dark') {
+                allSunIcons.forEach(icon => icon.style.display = 'block');
+                allMoonIcons.forEach(icon => icon.style.display = 'none');
+            } else {
+                allSunIcons.forEach(icon => icon.style.display = 'none');
+                allMoonIcons.forEach(icon => icon.style.display = 'block');
+            }
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+        mobileThemeToggle.addEventListener('click', toggleTheme);
+
+        mobileMenuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcons(savedTheme);
+    </script>
+</body>
+</html>
