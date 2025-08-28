@@ -3,24 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScanWeb - Website Vulnerability Scanner</title>
-
-    <meta property="og:title" content="ScanWeb - Advanced Security Scanner" />
-    <meta property="og:description" content="Comprehensive AI-powered vulnerability assessment. Scan websites for security headers, script vulnerabilities, and SQL injection risks." />
-    <meta property="og:image" content="https://scanweb.goneto.space/smth.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="620" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://scanweb.goneto.space" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ScanWeb - Advanced Security Scanner" />
-    <meta name="twitter:description" content="Comprehensive AI-powered vulnerability assessment. Scan websites for security headers, script vulnerabilities, and SQL injection risks." />
-    <meta name="twitter:image" content="https://scanweb.goneto.space/smth.png" />
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <title>Website Vulnerability Scanner</title>
     <style>
         * {
             margin: 0;
@@ -465,6 +448,7 @@
             animation: slideIn 0.3s ease-out;
             font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
             overflow: hidden;
+            max-width: 100%;
         }
 
         .ai-suggestions.show {
@@ -507,63 +491,65 @@
             background: #0d1117;
             color: #f0f6fc;
             min-height: 200px;
-        }
-
-        .terminal-prompt {
-            color: #7c3aed;
-            font-weight: 600;
-        }
-
-        .terminal-command {
-            color: #22d3ee;
-            margin-left: 8px;
-        }
-
-        .terminal-output {
-            margin: 16px 0;
             line-height: 1.6;
         }
 
-        .terminal-summary {
+        /* Clean markdown styling for terminal content */
+        .terminal-content h1, .terminal-content h2, .terminal-content h3 {
+            color: #58a6ff;
+            margin: 16px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .terminal-content h1 { font-size: 1.5em; }
+        .terminal-content h2 { font-size: 1.3em; }
+        .terminal-content h3 { font-size: 1.1em; }
+
+        .terminal-content strong {
+            color: #f79009;
+            font-weight: 600;
+        }
+
+        .terminal-content em {
+            color: #7c3aed;
+            font-style: italic;
+        }
+
+        .terminal-content code {
+            background: #161b22;
+            color: #79c0ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .terminal-content pre {
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 6px;
-            padding: 16px;
-            margin: 16px 0;
+            padding: 12px;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .terminal-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .terminal-content ul, .terminal-content ol {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .terminal-content li {
+            margin: 6px 0;
             color: #e6edf3;
         }
 
-        .terminal-recommendations {
-            margin-top: 20px;
-        }
-
-        .terminal-recommendations h4 {
-            color: #f79009;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-        .terminal-rec-item {
-            background: #161b22;
-            border-left: 3px solid #7c3aed;
-            padding: 12px 16px;
-            margin: 8px 0;
-            border-radius: 0 6px 6px 0;
+        .terminal-content p {
+            margin: 12px 0;
             color: #e6edf3;
-            font-size: 13px;
-            line-height: 1.5;
-            animation: terminalTypeIn 0.5s ease-out;
-        }
-
-        @keyframes terminalTypeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .ai-loading {
@@ -584,21 +570,6 @@
             font-size: 2rem;
             margin-bottom: 12px;
             animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% {
-                transform: translate3d(0,0,0);
-            }
-            40%, 43% {
-                transform: translate3d(0,-8px,0);
-            }
-            70% {
-                transform: translate3d(0,-4px,0);
-            }
-            90% {
-                transform: translate3d(0,-2px,0);
-            }
         }
 
         @media (max-width: 768px) {
@@ -647,7 +618,7 @@
         <!-- Added hero section with features -->
         <div class="hero">
             <div class="hero-content">
-                <h1>ScanWeb</h1>
+                <h1>Advanced Security Scanner</h1>
                 <p>Comprehensive vulnerability assessment powered by AI. Scan websites for security headers, script vulnerabilities, and potential SQL injection risks with intelligent recommendations.</p>
                 
                 <div class="hero-features">
@@ -725,6 +696,32 @@
     <script>
         const API_BASE_URL = 'https://scanner.goneto.space';
         const AI_WORKER_URL = 'https://vulscan.sameermann5335.workers.dev';
+        
+        function parseMarkdown(text) {
+            if (!text) return '';
+            
+            return text
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                // Code blocks
+                .replace(/\`\`\`([\s\S]*?)\`\`\`/g, '<pre><code>$1</code></pre>')
+                // Inline code
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                // Unordered lists
+                .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                // Ordered lists
+                .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+                // Line breaks
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+        }
         
         const themeToggle = document.getElementById('themeToggle');
         const sunIcon = themeToggle.querySelector('.sun-icon');
@@ -839,74 +836,30 @@
         function displayAISuggestions(aiData) {
             const aiContent = document.getElementById('aiContent');
             
-            let html = `
-                <div class="terminal-output">
-                    <span class="terminal-prompt">security@scanner:~$</span>
-                    <span class="terminal-command">analyze-vulnerabilities --format=detailed</span>
-                </div>
-            `;
+            // Combine summary and recommendations into single response
+            let fullResponse = '';
             
-            // Parse summary and clean up any JSON formatting
             if (aiData.summary) {
-                let cleanSummary = aiData.summary;
-                // Remove any JSON code block formatting
-                cleanSummary = cleanSummary.replace(/\`\`\`json\s*/, '').replace(/\`\`\`\s*$/, '');
-                // Remove any remaining JSON structure indicators
-                cleanSummary = cleanSummary.replace(/^\s*{\s*"summary":\s*"/, '').replace(/",?\s*"recommendations".*$/, '');
-                cleanSummary = cleanSummary.replace(/\\"/g, '"'); // Unescape quotes
+                fullResponse += aiData.summary;
+            }
+            
+            if (aiData.recommendations) {
+                if (fullResponse) fullResponse += '\n\n';
                 
-                html += `
-                    <div class="terminal-summary">
-                        <strong>SECURITY ANALYSIS SUMMARY:</strong><br><br>
-                        ${cleanSummary}
-                    </div>
-                `;
+                if (Array.isArray(aiData.recommendations)) {
+                    fullResponse += aiData.recommendations.join('\n\n');
+                } else if (typeof aiData.recommendations === 'string') {
+                    fullResponse += aiData.recommendations;
+                }
             }
             
-            // Parse recommendations array and display as terminal output
-            if (aiData.recommendations && Array.isArray(aiData.recommendations) && aiData.recommendations.length > 0) {
-                html += `
-                    <div class="terminal-recommendations">
-                        <h4>RECOMMENDED SECURITY ACTIONS:</h4>
-                        ${aiData.recommendations.map((rec, index) => {
-                            // Clean up each recommendation text
-                            let cleanRec = rec.toString();
-                            // Remove quotes and escape characters
-                            cleanRec = cleanRec.replace(/^"/, '').replace(/"$/, '');
-                            cleanRec = cleanRec.replace(/\\"/g, '"');
-                            return `<div class="terminal-rec-item" style="animation-delay: ${index * 0.1}s">[${index + 1}] ${cleanRec}</div>`;
-                        }).join('')}
-                    </div>
-                `;
-            }
-            
-            html += `
-                <div class="terminal-output" style="margin-top: 20px;">
-                    <span class="terminal-prompt">security@scanner:~$</span>
-                    <span class="terminal-command">scan-complete ✓</span>
-                </div>
-            `;
-            
-            aiContent.innerHTML = html;
+            // Display the complete response with markdown parsing
+            aiContent.innerHTML = parseMarkdown(fullResponse);
         }
 
         function displayAIError(errorMessage) {
             const aiContent = document.getElementById('aiContent');
-            
-            aiContent.innerHTML = `
-                <div class="terminal-output">
-                    <span class="terminal-prompt">security@scanner:~$</span>
-                    <span class="terminal-command">analyze-vulnerabilities --format=detailed</span>
-                </div>
-                <div class="terminal-summary" style="border-color: #dc2626; background: #1a1a1a;">
-                    <strong style="color: #ff6b6b;">ERROR:</strong> ${errorMessage}<br><br>
-                    Unable to generate AI recommendations at this time.
-                </div>
-                <div class="terminal-output">
-                    <span class="terminal-prompt">security@scanner:~$</span>
-                    <span class="terminal-command" style="color: #ff6b6b;">process-failed ✗</span>
-                </div>
-            `;
+            aiContent.innerHTML = `<p style="color: #ff6b6b;"><strong>Error:</strong> ${errorMessage}</p>`;
         }
         
 
